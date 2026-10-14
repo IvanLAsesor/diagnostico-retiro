@@ -1,5 +1,4 @@
 import streamlit as st
-import re
 from datetime import date
 from fpdf import FPDF
 import unicodedata
@@ -160,7 +159,7 @@ COMISION_ANUAL_AFORE = 0.00538
 DENSIDAD_COTIZACION = 0.8
 MARGEN_SEGURIDAD = 0.02
 FACTOR_PENSION_97 = 1.15
-TOPE_BIENESTAR = 17364.00
+TOPE_BIENESTAR_2026 = 17885.85
 UMA_ANUAL_2026 = 42818.15
 LIMITE_5_UMAS = UMA_ANUAL_2026 * 5
 LIMITE_ART_185 = 152000.00
@@ -211,9 +210,9 @@ with st.expander("Consultar aviso de privacidad simplificado"):
     st.markdown("""
     **Responsable del tratamiento:** Iván Lenz, asesor patrimonial independiente.
 
-    **Datos que se solicitan:** nombre, teléfono y datos generales laborales y financieros que captures voluntariamente.
+    **Datos que se solicitan:** datos generales laborales y financieros que captures voluntariamente. No se solicitan nombre ni teléfono en este formulario.
 
-    **Finalidad:** elaborar un diagnóstico estimado de retiro y, cuando corresponda, preparar un reporte PDF para entregártelo y dar seguimiento a la consulta que solicitaste.
+    **Finalidad:** elaborar un diagnóstico estimado de retiro y preparar un reporte PDF descargable durante la consulta.
 
     **Uso y resguardo:** los datos deben tratarse únicamente para estas finalidades y no deben compartirse con terceros ajenos al servicio sin una base legal aplicable o tu autorización. No introduzcas contraseñas, números completos de identificación ni información que no sea necesaria.
 
@@ -244,25 +243,31 @@ if acepta_privacidad:
     elif fecha_primera_cotizacion is not None:
         st.success("La fecha capturada es a partir del 1 de julio de 1997. Puedes continuar con este diagnóstico preliminar de Ley 97; verifica la fecha contra tu constancia oficial.")
 
-    modo_vista = st.sidebar.selectbox("Modo de Vista", ["Cliente (Pública)", "Asesor (Privada)"], help="El modo asesor habilita un campo adicional para capturar semanas cotizadas reales.")
+    modo_vista = st.sidebar.selectbox("Modo de Vista", ["Cliente (Pública)", "Asesor (Privada)"], help="El modo asesor muestra información de apoyo para revisar los datos del diagnóstico.")
 
     # ==========================================
-    # PASO 1: DATOS PERSONALES
+    # PASO 1: PERFIL Y EDAD DE RETIRO
     # ==========================================
-    st.markdown("### 2. Tus datos")
+    st.markdown("### 2. Tu perfil y edad de retiro")
     col1, col2 = st.columns(2)
 
     with col1:
-        nombre = st.text_input("Nombre completo", placeholder="Ej. Beatriz Díaz", help="Se utiliza para identificar el reporte PDF. Captura tu nombre como deseas que aparezca en el documento.")
-        telefono = st.text_input("Teléfono celular (10 dígitos)", placeholder="Ej. 3312345678", help="Permite dar seguimiento a la consulta. Escribe únicamente los 10 dígitos, sin espacios ni guiones.")
-        telefono_valido = bool(re.match(r"^\d{10}$", telefono)) if telefono else False
-        if telefono and not telefono_valido:
-            st.warning("⚠️ El teléfono debe contener exactamente 10 números.")
+        sexo = st.radio("Sexo", ["Hombre", "Mujer"], horizontal=True, help="Se usa para seleccionar el factor actuarial de referencia del modelo.")
+        edad_actual = st.number_input("Edad actual", min_value=18, max_value=64, value=40, step=1, help="Edad en años cumplidos.")
 
     with col2:
-        sexo = st.radio("Sexo", ["Hombre", "Mujer"], horizontal=True, help="Se usa para seleccionar el factor actuarial de referencia que contiene el modelo actual.")
-        edad_actual = st.number_input("Edad actual", min_value=18, max_value=64, value=40, step=1, help="Edad en años cumplidos. El modelo estima el horizonte hasta los 65 años.")
-        st.caption("La fecha exacta de primera cotización se captura arriba para validar el régimen. Esta validación no sustituye la constancia oficial del IMSS.")
+        edades_disponibles = [edad for edad in (60, 65) if edad >= edad_actual]
+        if not edades_disponibles:
+            edades_disponibles = [65]
+        edad_retiro = st.selectbox(
+            "Edad objetivo de retiro",
+            options=edades_disponibles,
+            index=len(edades_disponibles) - 1,
+            help="El modelo actual cuenta con factores de referencia para las edades 60 y 65. Si tienes otra edad en mente, requiere una validación actuarial específica."
+        )
+        st.caption(f"Horizonte de proyección: {max(0, int(edad_retiro - edad_actual))} años.")
+
+    st.caption("La fecha de primera cotización se captura arriba para revisar el régimen. Esta validación no sustituye la constancia oficial del IMSS.")
 
     # ==========================================
     # PASO 2: DATOS FINANCIEROS
@@ -313,11 +318,27 @@ if acepta_privacidad:
         help="Esta selección sirve para comparar escenarios durante la asesoría. El tratamiento fiscal depende del plan y de los requisitos aplicables."
     )
 
-    semanas_cotizadas = 0
+    st.markdown("---")
+    st.markdown("### 6. Datos para revisar posibles complementos")
+    col_sem, col_sbc = st.columns(2)
+    with col_sem:
+        semanas_cotizadas = st.number_input(
+            "Semanas cotizadas actuales", min_value=0, max_value=3000, value=0, step=25,
+            help="Captura las semanas de la constancia oficial del IMSS. Se usarán para una revisión preliminar de requisitos; si no conoces el dato, déjalo en cero."
+        )
+    with col_sbc:
+        sbc_promedio_diario_52 = st.number_input(
+            "SBC diario promedio de las últimas 52 semanas (MXN, opcional)", min_value=0.0, value=0.0, step=100.0, format="%.2f",
+            help="Dato necesario para estimar el posible complemento del Fondo de Pensiones para el Bienestar. Usa el promedio certificado y excluye los periodos de Modalidad 40 conforme a las reglas aplicables."
+        )
+    no_retiro_excedentes = st.checkbox(
+        "Declaro que no he retirado excedentes de mi cuenta individual", value=False,
+        help="Es uno de los criterios que deben verificarse para el Fondo de Pensiones para el Bienestar. La declaración no sustituye la validación del IMSS."
+    )
     if modo_vista == "Asesor (Privada)":
         st.sidebar.markdown("---")
         st.sidebar.subheader("Panel del Asesor")
-        semanas_cotizadas = st.sidebar.number_input("Semanas cotizadas reales", min_value=0, value=1000, help="Dato de la Constancia de Semanas Cotizadas del IMSS. El cálculo actual no usa este campo en las fórmulas; se conserva para referencia del asesor.")
+        st.sidebar.caption("Las semanas, el SBC de referencia y los criterios del Fondo se capturan en el formulario principal.")
 
     # ==========================================
     # BOTÓN DE CÁLCULO
@@ -329,13 +350,11 @@ if acepta_privacidad:
             st.error("Selecciona la fecha de tu primera cotización registrada ante el IMSS para validar el régimen antes de calcular.")
         elif fecha_primera_cotizacion < date(1997, 7, 1):
             st.error("Cálculo bloqueado: la fecha capturada corresponde a una posible situación de Ley 73 / transición. No se generará un diagnóstico Ley 97 con estos datos.")
-        elif not nombre or not telefono_valido:
-            st.error("Por favor, revisa que tu nombre y teléfono a 10 dígitos estén bien escritos.")
         elif salario_mensual == 0:
             st.error("Por favor, ingresa tu sueldo mensual actual.")
         else:
             with st.spinner("Calculando tu diagnóstico..."):
-                anos_futuros = 65 - edad_actual
+                anos_futuros = max(0, int(edad_retiro - edad_actual))
                 meses_totales = anos_futuros * 12
                 factor_calibracion = 0.942
 
@@ -351,19 +370,39 @@ if acepta_privacidad:
                     aportacion_mes = salario_mensual * tasa_cotiz * DENSIDAD_COTIZACION * factor_calibracion
                     saldo_afore_acumulado = (saldo_afore_acumulado * (1 + tasa_mensual_neta_afore)) + aportacion_mes
 
-                ae_65_fija = ANUALIDADES[sexo][65]
-                pension_65_base = (saldo_afore_acumulado / ((1 + MARGEN_SEGURIDAD) * ae_65_fija)) * FACTOR_PENSION_97 / 12
-                complemento_solidario = max(0.0, TOPE_BIENESTAR - pension_65_base) if pension_65_base < TOPE_BIENESTAR else 0.0
-                pension_65_obligatoria_total = pension_65_base + complemento_solidario
+                factor_anualidad = ANUALIDADES[sexo][edad_retiro]
+                pension_base_estimada = (saldo_afore_acumulado / ((1 + MARGEN_SEGURIDAD) * factor_anualidad)) * FACTOR_PENSION_97 / 12
+
+                # Revisión preliminar de semanas para PMG / Fondo de Pensiones para el Bienestar.
+                anio_retiro_estimado = date.today().year + anos_futuros
+                semanas_minimas_retiro = min(1000, 875 + max(0, anio_retiro_estimado - 2026) * 25)
+                semanas_futuras_estimadas = round(52 * anos_futuros * DENSIDAD_COTIZACION)
+                semanas_proyectadas = int(semanas_cotizadas) + semanas_futuras_estimadas
+                pmg_podria_corresponder = edad_retiro >= 60 and semanas_proyectadas >= semanas_minimas_retiro
+
+                # El FPB solo se estima si se cumplen criterios básicos y se captura el SBC promedio certificado.
+                referencia_mensual_fpb = min(sbc_promedio_diario_52 * 30.4, TOPE_BIENESTAR_2026) if sbc_promedio_diario_52 > 0 else 0.0
+                fpb_requisitos_basicos = (
+                    edad_retiro >= 65
+                    and fecha_primera_cotizacion >= date(1997, 7, 1)
+                    and semanas_proyectadas >= semanas_minimas_retiro
+                    and no_retiro_excedentes
+                    and referencia_mensual_fpb > 0
+                )
+                complemento_bienestar_estimado = (
+                    max(0.0, referencia_mensual_fpb - pension_base_estimada)
+                    if fpb_requisitos_basicos else 0.0
+                )
+                pension_obligatoria_estimada = pension_base_estimada + complemento_bienestar_estimado
 
                 saldo_voluntario_acumulado = saldo_voluntario_actual
                 for mes in range(1, meses_totales + 1):
                     aportacion_voluntaria_tarjeton = salario_mensual * porcentaje_ahorro_imss
                     saldo_voluntario_acumulado = (saldo_voluntario_acumulado * (1 + tasa_mensual_neta_afore)) + aportacion_voluntaria_tarjeton
 
-                pension_generada_voluntario = (saldo_voluntario_acumulado / ((1 + MARGEN_SEGURIDAD) * ae_65_fija)) * FACTOR_PENSION_97 / 12
+                pension_generada_voluntario = (saldo_voluntario_acumulado / ((1 + MARGEN_SEGURIDAD) * factor_anualidad)) * FACTOR_PENSION_97 / 12
 
-                pension_afore_consolidada = pension_65_obligatoria_total + pension_generada_voluntario
+                pension_afore_consolidada = pension_obligatoria_estimada + pension_generada_voluntario
                 brecha_patrimonial = max(0.0, salario_mensual - pension_afore_consolidada)
                 tasa_reemplazo = (pension_afore_consolidada / salario_mensual) * 100 if salario_mensual > 0 else 0
 
@@ -377,15 +416,15 @@ if acepta_privacidad:
                 # RESULTADOS VISUALES
                 # ==========================================
                 st.markdown("---")
-                st.markdown("## 📊 Tu Diagnóstico de Retiro")
+                st.markdown(f"## 📊 Tu Diagnóstico de Retiro a los {edad_retiro} años")
 
                 col_a, col_b, col_c = st.columns([1, 1, 1])
                 with col_a:
                     st.markdown(f"""
                     <div class="metric-card">
-                        <h3>Pensión obligatoria estimada</h3>
-                        <div class="value">${pension_65_obligatoria_total:,.0f}</div>
-                        <div class="label">MXN mensuales</div>
+                        <h3>Pensión proyectada estimada</h3>
+                        <div class="value">${pension_obligatoria_estimada:,.0f}</div>
+                        <div class="label">MXN mensuales · FPB solo si procede</div>
                     </div>
                     """, unsafe_allow_html=True)
                 with col_b:
@@ -408,18 +447,33 @@ if acepta_privacidad:
                 # Sección 1
                 st.markdown("---")
                 st.markdown("### 1. Tu pensión del sistema obligatorio")
-                st.write(f"- Fondo estimado acumulado por Ley: **${saldo_afore_acumulado:,.2f} MXN**")
-                st.write(f"- Pensión base de la Afore: **${pension_65_base:,.2f} MXN**")
-                if complemento_solidario > 0:
-                    st.write(f"- Subsidio del Gobierno (Fondo del Bienestar): **${complemento_solidario:,.2f} MXN**")
-                st.write(f"- **Pensión mensual obligatoria estimada: ${pension_65_obligatoria_total:,.2f} MXN**")
-                st.caption("Este resultado se calcula con la proyección del sistema obligatorio. No depende de la opción fiscal ni de contratar un plan privado.")
+                st.write(f"- Fondo AFORE proyectado a los {edad_retiro} años: **${saldo_afore_acumulado:,.2f} MXN**")
+                st.write(f"- Pensión base estimada con el modelo: **${pension_base_estimada:,.2f} MXN mensuales**")
+                if complemento_bienestar_estimado > 0:
+                    st.write(f"- Posible complemento estimado del Fondo de Pensiones para el Bienestar: **${complemento_bienestar_estimado:,.2f} MXN mensuales**")
+                    st.caption(f"Referencia mensual utilizada para el FPB: ${referencia_mensual_fpb:,.2f} MXN, con límite de referencia 2026 de ${TOPE_BIENESTAR_2026:,.2f}. No se proyectan futuras actualizaciones por inflación; es una estimación preliminar, no una resolución del IMSS.")
+                elif edad_retiro < 65:
+                    st.info("El Fondo de Pensiones para el Bienestar no se incorpora a esta edad objetivo: el criterio de edad mínima es 65 años.")
+                elif sbc_promedio_diario_52 <= 0:
+                    st.info("No se estimó el Fondo de Pensiones para el Bienestar porque falta el SBC diario promedio certificado de las últimas 52 semanas.")
+                elif not no_retiro_excedentes:
+                    st.info("El complemento del Fondo de Pensiones para el Bienestar no se incorporó: falta confirmar el criterio de no haber retirado excedentes de la cuenta individual.")
+                elif not fpb_requisitos_basicos:
+                    st.info("Con los datos capturados no se confirmaron todos los criterios básicos para estimar el Fondo de Pensiones para el Bienestar. Debe validarse la elegibilidad con el IMSS.")
+                elif complemento_bienestar_estimado <= 0:
+                    st.info("Con esta proyección no se observa una diferencia positiva entre la pensión base estimada y la referencia del Fondo. El IMSS determina el complemento real.")
+                st.write(f"- **Pensión mensual proyectada (AFORE y FPB estimado si procede): ${pension_obligatoria_estimada:,.2f} MXN**")
+                if pmg_podria_corresponder:
+                    st.warning(f"**Revisión de Pensión Mínima Garantizada:** las semanas proyectadas ({semanas_proyectadas:,}) alcanzan el umbral preliminar estimado para {anio_retiro_estimado} ({semanas_minimas_retiro:,}). El monto de la PMG no se suma automáticamente: depende de edad, semanas y salario promedio histórico y debe calcularse/confirmarse con el IMSS.")
+                else:
+                    st.caption(f"Con las semanas capturadas y proyectadas ({semanas_proyectadas:,}), no se confirma preliminarmente el requisito de semanas para PMG en el año estimado de retiro ({semanas_minimas_retiro:,}). Verifica los requisitos vigentes al pensionarte.")
+                st.caption("La proyección de AFORE es ilustrativa. La PMG y el Fondo de Pensiones para el Bienestar son mecanismos distintos y no se suman automáticamente entre sí.")
 
                 # Sección 2 (solo si es IMSS)
                 if es_empleado_imss:
                     st.markdown("---")
                     st.markdown("### Ahorro complementario de nómina IMSS")
-                    st.write(f"- Fondo total estimado de Ahorro Voluntario a los 65 años: **${saldo_voluntario_acumulado:,.2f} MXN**")
+                    st.write(f"- Fondo total estimado de Ahorro Voluntario a los {edad_retiro} años: **${saldo_voluntario_acumulado:,.2f} MXN**")
                     st.write(f"- **Pensión mensual extra generada por tu Ahorro Voluntario: ${pension_generada_voluntario:,.2f} MXN**")
 
                 # Sección 3
@@ -441,8 +495,8 @@ if acepta_privacidad:
 
                     # Sección 4
                     st.markdown("---")
-                    st.markdown("### 3. Una estrategia para complementar tu pensión")
-                    capital_necesario_comp = (brecha_patrimonial * 12 * ae_65_fija * (1 + MARGEN_SEGURIDAD)) / FACTOR_PENSION_97
+                    st.markdown("### 3. Ahorro privado para complementar tu pensión")
+                    capital_necesario_comp = (brecha_patrimonial * 12 * factor_anualidad * (1 + MARGEN_SEGURIDAD)) / FACTOR_PENSION_97
 
                     if meses_totales > 0:
                         factor_acumulacion = ((1 + tasa_mensual_comp) ** meses_totales - 1) / tasa_mensual_comp
@@ -451,7 +505,7 @@ if acepta_privacidad:
                         aportacion_requerida = 0.0
 
                     aportacion_final_comp = max(MINIMO_APORTACION, aportacion_requerida)
-                    pension_generada_ahorro = (capital_necesario_comp * FACTOR_PENSION_97) / (ae_65_fija * (1 + MARGEN_SEGURIDAD)) / 12
+                    pension_generada_ahorro = (capital_necesario_comp * FACTOR_PENSION_97) / (factor_anualidad * (1 + MARGEN_SEGURIDAD)) / 12
 
                     st.write(f"- **Fondo privado proyectado: ${capital_necesario_comp:,.2f} MXN**")
                     st.metric(label="Ahorro mensual sugerido", value=f"${aportacion_final_comp:,.2f} MXN")
@@ -460,7 +514,7 @@ if acepta_privacidad:
                     # Sección 5
                     st.markdown("---")
                     st.markdown("### Resultado combinado de los escenarios")
-                    pension_consolidada_final = pension_65_obligatoria_total + pension_generada_voluntario + pension_generada_ahorro
+                    pension_consolidada_final = pension_obligatoria_estimada + pension_generada_voluntario + pension_generada_ahorro
 
                     st.markdown(f"""
                     <div class="success-box">
@@ -469,7 +523,7 @@ if acepta_privacidad:
                     </div>
                     """, unsafe_allow_html=True)
 
-                    st.write(f"• (+) Pensión por tu Afore Obligatoria de Ley: **${pension_65_obligatoria_total:,.2f} MXN**")
+                    st.write(f"• (+) Pensión por tu Afore Obligatoria de Ley: **${pension_obligatoria_estimada:,.2f} MXN**")
                     if es_empleado_imss:
                         st.write(f"• (+) Pensión extra por tu Ahorro Voluntario IMSS: **${pension_generada_voluntario:,.2f} MXN**")
                     st.write(f"• (+) Pensión estimada por tu Plan Privado Sugerido: **${pension_generada_ahorro:,.2f} MXN**")
@@ -507,7 +561,7 @@ if acepta_privacidad:
 
                 else:
                     st.success("Según los datos capturados, la pensión estimada cubre el ingreso mensual indicado.")
-                    pension_consolidada_final = pension_65_obligatoria_total + pension_generada_voluntario
+                    pension_consolidada_final = pension_obligatoria_estimada + pension_generada_voluntario
 
                 # ==========================================
                 # GENERACIÓN DEL PDF
@@ -535,11 +589,9 @@ if acepta_privacidad:
                 pdf.set_font("Helvetica", size=11)
 
                 pdf.set_font("Helvetica", "B", 12)
-                pdf.cell(0, 8, "1. INFORMACION DEL ASEGURADO", ln=True)
+                pdf.cell(0, 8, "1. DATOS DEL DIAGNOSTICO", ln=True)
                 pdf.set_font("Helvetica", size=11)
-                pdf.cell(0, 6, texto_pdf_seguro(f"Nombre: {nombre}"), ln=True)
-                pdf.cell(0, 6, f"Telefono: {telefono}", ln=True)
-                pdf.cell(0, 6, f"Sexo: {sexo} | Edad actual: {edad_actual} anos", ln=True)
+                pdf.cell(0, 6, f"Sexo: {sexo} | Edad actual: {edad_actual} anos | Edad objetivo: {edad_retiro} anos", ln=True)
                 pdf.cell(0, 6, f"Primera cotizacion IMSS capturada: {fecha_primera_cotizacion.strftime('%d/%m/%Y')}", ln=True)
                 pdf.cell(0, 6, "Regimen evaluado por fecha capturada: Ley 97 (validar con constancia oficial)", ln=True)
                 pdf.cell(0, 6, f"Sueldo Mensual Bruto: {salario_mensual:,.2f} MXN", ln=True)
@@ -549,10 +601,15 @@ if acepta_privacidad:
                 pdf.cell(0, 8, "2. DIAGNOSTICO DEL SISTEMA OBLIGATORIO (AFORE)", ln=True)
                 pdf.set_font("Helvetica", size=11)
                 pdf.cell(0, 6, f"Fondo estimado acumulado: {saldo_afore_acumulado:,.2f} MXN", ln=True)
-                pdf.cell(0, 6, f"Pension base de la Afore: {pension_65_base:,.2f} MXN", ln=True)
-                if complemento_solidario > 0:
-                    pdf.cell(0, 6, f"Complemento del Bienestar: {complemento_solidario:,.2f} MXN", ln=True)
-                pdf.cell(0, 6, f"Pension Mensual Obligatoria: {pension_65_obligatoria_total:,.2f} MXN", ln=True)
+                pdf.cell(0, 6, f"Pension base estimada AFORE: {pension_base_estimada:,.2f} MXN", ln=True)
+                if complemento_bienestar_estimado > 0:
+                    pdf.cell(0, 6, f"Posible complemento FPB estimado: {complemento_bienestar_estimado:,.2f} MXN (referencia limite 2026)", ln=True)
+                pdf.cell(0, 6, f"Pension proyectada AFORE + FPB estimado si procede: {pension_obligatoria_estimada:,.2f} MXN", ln=True)
+                pdf.cell(0, 6, f"Semanas actuales capturadas: {int(semanas_cotizadas):,} | Semanas proyectadas: {semanas_proyectadas:,}", ln=True)
+                if pmg_podria_corresponder:
+                    pdf.multi_cell(0, 6, f"Revision PMG: posible cumplimiento preliminar del umbral de semanas ({semanas_minimas_retiro:,} para el anio estimado {anio_retiro_estimado}). Monto no incluido; confirmar con IMSS.")
+                else:
+                    pdf.multi_cell(0, 6, f"Revision PMG: requisitos preliminares de semanas no confirmados. Umbral usado para el anio estimado {anio_retiro_estimado}: {semanas_minimas_retiro:,} semanas.")
                 pdf.ln(5)
 
                 if es_empleado_imss:
@@ -582,7 +639,7 @@ if acepta_privacidad:
                 pdf.set_font("Helvetica", "B", 12)
                 pdf.cell(0, 8, "6. RESUMEN CONSOLIDADO DE PENSION MENSUAL FUTURA", ln=True)
                 pdf.set_font("Helvetica", size=11)
-                pdf.cell(0, 6, f"(+) Afore Obligatoria: {pension_65_obligatoria_total:,.2f} MXN", ln=True)
+                pdf.cell(0, 6, f"(+) AFORE + FPB estimado si procede: {pension_obligatoria_estimada:,.2f} MXN", ln=True)
                 if es_empleado_imss:
                     pdf.cell(0, 6, f"(+) Ahorro Voluntario: {pension_generada_voluntario:,.2f} MXN", ln=True)
                 if brecha_patrimonial > 0:
@@ -601,17 +658,17 @@ if acepta_privacidad:
 
                 pdf.ln(10)
                 pdf.set_font("Helvetica", "I", 9)
-                pdf.multi_cell(0, 5, "AVISO: Resultados hipoteticos e ilustrativos; no representan una pension garantizada ni una resolucion oficial. La estimacion fiscal depende de la situacion del contribuyente, el plan contratado y los requisitos aplicables.")
+                pdf.multi_cell(0, 5, "AVISO: Resultados hipoteticos e ilustrativos; no representan una pension garantizada ni una resolucion oficial. La PMG y el Fondo de Pensiones para el Bienestar son distintos y requieren validar requisitos y monto con el IMSS. La estimacion fiscal depende de la situacion del contribuyente, el plan contratado y los requisitos aplicables.")
 
                 pdf_output = bytes(pdf.output())
                 st.download_button(
                     label="📥 Descargar Diagnóstico Patrimonial en PDF",
                     data=bytes(pdf_output),
-                    file_name=f"Plan_Retiro_{re.sub(r'[^A-Za-z0-9_-]+', '_', texto_pdf_seguro(nombre)).strip('_') or 'Prospecto'}.pdf",
+                    file_name="Diagnostico_Retiro_Patrimonial.pdf",
                     mime="application/pdf"
                 )
 
                 st.markdown("---")
-                st.caption("Nota: resultados ilustrativos. La pensión debe validarse con la información oficial del IMSS/AFORE. Las estimaciones fiscales dependen del plan y de los requisitos aplicables.")
+                st.caption("Nota: resultados ilustrativos. La pensión, la PMG y el posible complemento del Fondo de Pensiones para el Bienestar deben validarse con la información oficial del IMSS/AFORE. Las estimaciones fiscales dependen del plan y de los requisitos aplicables.")
 else:
     st.info("Para comenzar, consulta el aviso de privacidad y marca la casilla de autorización. No se mostrarán los campos de captura hasta que lo hagas.")
