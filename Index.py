@@ -19,109 +19,135 @@ st.set_page_config(
 # ==========================================
 st.markdown("""
 <style>
+    :root { color-scheme: light; }
+    .main .block-container {
+        max-width: 1120px;
+        padding-top: 1.35rem;
+        padding-bottom: 2rem;
+        padding-left: clamp(0.85rem, 3vw, 2rem);
+        padding-right: clamp(0.85rem, 3vw, 2rem);
+    }
     .main-header {
-        background: linear-gradient(135deg, #101d35 0%, #1e3a5f 70%, #9b7a3c 100%);
-        padding: clamp(1.2rem, 3vw, 2.2rem);
+        background: linear-gradient(125deg, #101d35 0%, #203d60 72%, #8d713d 100%);
+        padding: clamp(1rem, 2.5vw, 1.8rem);
         border-radius: 14px;
-        color: white;
-        margin-bottom: 1.4rem;
+        color: #ffffff;
+        margin-bottom: 1rem;
         text-align: left;
-        border: 1px solid rgba(201, 168, 100, .45);
-        box-shadow: 0 10px 28px rgba(16, 29, 53, .14);
+        border: 1px solid rgba(201, 168, 100, .4);
+        box-shadow: 0 7px 20px rgba(16, 29, 53, .12);
     }
     .main-header h1 {
-        color: white;
+        color: #ffffff !important;
         margin: 0;
-        font-size: clamp(1.45rem, 3vw, 2.15rem);
+        font-size: clamp(1.35rem, 3.2vw, 2.05rem);
         line-height: 1.2;
         font-weight: 750;
     }
     .main-header p {
-        color: #cbd5e0;
-        margin-top: 0.5rem;
-        font-size: 1.1rem;
+        color: #e1e7ef !important;
+        margin: .45rem 0 0 0;
+        font-size: clamp(.9rem, 1.7vw, 1.05rem);
+        line-height: 1.4;
     }
+    h2, h3 { color: #172d49; letter-spacing: -.015em; }
+    h2 { margin-top: .9rem; }
     .card {
-        background: white;
+        background: #ffffff;
         border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        border-left: 4px solid #2c5282;
-        margin-bottom: 1rem;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(16, 29, 53, .06);
+        border: 1px solid #e1e7ef;
+        border-left: 3px solid #b79a5b;
+        margin-bottom: .85rem;
     }
     .metric-card {
-        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        background: linear-gradient(145deg, #ffffff 0%, #f3f6fa 100%);
         border-radius: 12px;
-        padding: 1.2rem 0.8rem;
+        padding: 1rem .65rem;
         text-align: center;
-        border: 1px solid #e2e8f0;
-        max-width: 280px;
-        margin: 0 auto;
+        border: 1px solid #dfe6ef;
+        height: 100%;
+        box-sizing: border-box;
     }
     .metric-card h3 {
-        color: #4a5568;
-        font-size: 0.8rem;
+        color: #526174 !important;
+        font-size: .74rem;
+        line-height: 1.35;
         margin: 0;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: .035em;
     }
     .metric-card .value {
-        color: #1e3a5f;
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin: 0.5rem 0;
+        color: #183554 !important;
+        font-size: clamp(1.25rem, 2.6vw, 1.75rem);
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+        font-weight: 750;
+        margin: .45rem 0;
     }
-    .metric-card .label {
-        color: #718096;
-        font-size: 0.8rem;
+    .metric-card .label { color: #657286 !important; font-size: .78rem; line-height: 1.35; }
+    .success-box, .warning-box, .info-box, .note-box {
+        padding: .8rem .95rem;
+        border-radius: 9px;
+        margin: .75rem 0;
+        line-height: 1.5;
+        font-size: .92rem;
     }
-    .success-box {
-        background: #f0fff4;
-        border-left: 4px solid #38a169;
-        padding: 1rem;
+    .success-box { background: #f0f7f2; color: #214d35; border-left: 3px solid #5d9470; }
+    .warning-box { background: #fbf7ee; color: #624d24; border-left: 3px solid #b99b5b; }
+    .info-box { background: #f1f5f9; color: #33465d; border-left: 3px solid #7188a4; }
+    .note-box { background: #f7f8fa; color: #5b6573; border: 1px solid #e3e7ed; font-size: .8rem; }
+    .stButton > button, .stDownloadButton > button {
+        background: #183554;
+        color: #ffffff !important;
+        border: 1px solid #183554;
+        padding: .58rem 1rem;
         border-radius: 8px;
-        margin: 1rem 0;
-        max-width: 600px;
-    }
-    .warning-box {
-        background: #fffaf0;
-        border-left: 4px solid #dd6b20;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 1rem 0;
-        max-width: 600px;
-    }
-    .info-box {
-        background: #ebf8ff;
-        border-left: 4px solid #3182ce;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 1rem 0;
-        max-width: 600px;
-    }
-    .stButton > button {
-        background: linear-gradient(135deg, #1e3a5f 0%, #101d35 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 1rem;
+        font-weight: 650;
+        font-size: .94rem;
+        min-height: 2.65rem;
         width: 100%;
+        transition: background .15s ease, border-color .15s ease;
     }
-    .stButton > button:hover {
-        background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
-        color: white;
+    .stButton > button:hover, .stDownloadButton > button:hover {
+        background: #294b70;
+        color: #ffffff !important;
+        border-color: #294b70;
     }
-    div[data-testid="stMetricValue"] {
-        color: #1e3a5f;
-        font-weight: 700;
+    .stButton > button:focus, .stDownloadButton > button:focus {
+        box-shadow: 0 0 0 2px #d8c391;
+        outline: none;
     }
-    div[data-testid="stAlert"] { border-radius: 10px; }
-    .stCaption, [data-testid="stCaptionContainer"] { line-height: 1.45; }
+    div[data-testid="stMetricValue"] { color: #183554 !important; font-weight: 750; }
+    div[data-testid="stAlert"] { border-radius: 9px; padding: .65rem .8rem; }
+    .stCaption, [data-testid="stCaptionContainer"] { line-height: 1.45; color: #647184; }
+    label, [data-testid="stWidgetLabel"] p { color: #24364b !important; font-weight: 550; }
+    input, textarea, [data-baseweb="select"] > div {
+        border-radius: 8px !important;
+    }
+    input, textarea { font-size: 16px !important; }
+    [data-testid="stTextInput"] input, [data-testid="stNumberInput"] input,
+    [data-testid="stDateInput"] input, [data-testid="stTextArea"] textarea {
+        background: #ffffff !important;
+        color: #172b43 !important;
+        border-color: #cbd5e1 !important;
+    }
+    [data-testid="stTextInput"] input::placeholder { color: #7b8797 !important; }
+    [data-baseweb="select"] * { color: #172b43; }
+    [data-testid="stExpander"] { border-color: #e0e6ed; border-radius: 9px; }
+    [data-testid="stHorizontalBlock"] { gap: .85rem; }
     @media (max-width: 700px) {
-        .main-header { padding: 1.1rem; }
-        .metric-card .value { font-size: 1.4rem; }
+        .main .block-container { padding-top: .65rem; padding-left: .8rem; padding-right: .8rem; }
+        .main-header { padding: 1rem; border-radius: 11px; }
+        .main-header p { margin-top: .4rem; }
+        [data-testid="stHorizontalBlock"] { flex-wrap: wrap; gap: .5rem; }
+        [data-testid="stHorizontalBlock"] > [data-testid="column"] { min-width: 100% !important; flex: 1 1 100% !important; }
+        .metric-card { padding: .85rem .65rem; }
+        .metric-card .value { font-size: 1.45rem; }
+        .stButton > button, .stDownloadButton > button { min-height: 2.45rem; padding: .55rem .75rem; font-size: .9rem; }
+        h2 { font-size: 1.35rem !important; }
+        h3 { font-size: 1.08rem !important; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -158,12 +184,12 @@ def texto_pdf_seguro(texto):
     return texto.encode("latin-1", errors="replace").decode("latin-1")
 
 # ==========================================
-# ENCABEZADO
+# ENCABEZADO Y AVISO DE PRIVACIDAD
 # ==========================================
 try:
-    col_logo, col_titulo = st.columns([1, 4])
+    col_logo, col_titulo = st.columns([1, 4], vertical_alignment="center")
     with col_logo:
-        st.image("logo.png", width=120)
+        st.image("logo.png", use_container_width=True)
     with col_titulo:
         st.markdown("""
         <div class="main-header">
@@ -179,55 +205,40 @@ except Exception:
     </div>
     """, unsafe_allow_html=True)
 
-st.info("Este diagnóstico es una herramienta educativa de estimación. No sustituye una resolución del IMSS, una proyección oficial de la AFORE ni una asesoría fiscal individual.")
+st.caption("Diagnóstico ilustrativo elaborado con los datos capturados. Los resultados pueden variar y deben revisarse durante la asesoría.")
 
-# ==========================================
-# AVISO DE PRIVACIDAD SIMPLIFICADO
-# ==========================================
-with st.expander("📄 Consultar Aviso de Privacidad"):
+with st.expander("Consultar aviso de privacidad simplificado"):
     st.markdown("""
-    ### Aviso de Privacidad Simplificado
+    **Responsable del tratamiento:** Iván Lenz, asesor patrimonial independiente.
 
-    **Responsable:** Gabril Iván Lenz C, asesor patrimonial independiente.
-    **Contacto:** ivanlenz@proton.me
+    **Datos que se solicitan:** nombre, teléfono y datos generales laborales y financieros que captures voluntariamente.
 
-    **Datos que se tratarán:**
-    Esta herramienta **no solicita tu nombre, teléfono ni datos de identificación personal**. Únicamente captura:
-    - Edad y sexo.
-    - Sueldo mensual.
-    - Saldo de AFORE y ahorro voluntario.
-    - Semanas cotizadas (opcional, modo asesor).
-    - Preferencia fiscal.
+    **Finalidad:** elaborar un diagnóstico estimado de retiro y, cuando corresponda, preparar un reporte PDF para entregártelo y dar seguimiento a la consulta que solicitaste.
 
-    **Finalidad:**
-    Estos datos se utilizan **exclusivamente** para elaborar un diagnóstico estimado de tu retiro y generar un reporte en PDF. No se usarán para contactarte, ni para fines publicitarios, ni se compartirán con terceros.
+    **Uso y resguardo:** los datos deben tratarse únicamente para estas finalidades y no deben compartirse con terceros ajenos al servicio sin una base legal aplicable o tu autorización. No introduzcas contraseñas, números completos de identificación ni información que no sea necesaria.
 
-    **Consentimiento:**
-    Al marcar la casilla de aceptación, otorgas tu **consentimiento expreso** para el tratamiento de tus datos financieros con la única finalidad de realizar este cálculo.
+    **Derechos y contacto:** para solicitar acceso, rectificación, cancelación u oponerte al tratamiento, contacta al asesor que te compartió este formulario por el mismo medio.
 
-    **Derechos ARCO:**
-    Puedes solicitar acceso, rectificación, cancelación u oposición al tratamiento de tus datos enviando un correo a ivanlenz@proton.me.
-
-    **Importante:** Este es un aviso simplificado. El aviso integral está disponible a solicitud.
+    **Importante:** este texto es un aviso simplificado provisional; antes de publicar o distribuir ampliamente la aplicación, debe completarse con los datos de contacto, medios de ejercicio de derechos y demás elementos legales aplicables.
     """)
 
 acepta_privacidad = st.checkbox(
-    "He leído el Aviso de Privacidad y autorizo el uso de mis datos financieros para elaborar mi diagnóstico.",
+    "He leído el aviso de privacidad y autorizo el uso de los datos que capture para elaborar mi diagnóstico.",
     value=False,
     help="El formulario no mostrará los campos de captura hasta que marques esta casilla."
 )
 
 if acepta_privacidad:
-    st.markdown("### Antes de comenzar: identifica tu régimen")
+    st.markdown("### 1. Identifiquemos tu régimen")
     fecha_primera_cotizacion = st.date_input(
-        "Fecha de tu primera cotización registrada ante el IMSS",
-        value=date(1997, 7, 1),
+        "¿Cuándo comenzaste a cotizar ante el IMSS?",
+        value=None,
         min_value=date(1960, 1, 1),
         max_value=date.today(),
         format="DD/MM/YYYY",
-        help="Busca la fecha de registro o el primer movimiento en tu Constancia de Semanas Cotizadas del IMSS o en la información de tu AFORE. La fecha en que empezaste a trabajar puede ser distinta."
+        help="Si no conoces la fecha exacta, revisa tu Constancia de Semanas Cotizadas del IMSS."
     )
-    st.caption("La fecha de referencia para distinguir los regímenes es el 1 de julio de 1997. Si cotizaste antes de esa fecha, el IMSS puede reconocer derechos de transición y este cálculo de Ley 97 no debe usarse sin revisar tu caso.")
+    st.caption("La fecha ayuda a identificar el régimen que debemos revisar. Si cotizaste antes del 1 de julio de 1997, revisaremos tu caso con un diagnóstico específico.")
     if fecha_primera_cotizacion is not None and fecha_primera_cotizacion < date(1997, 7, 1):
         st.warning("Por la fecha capturada, podrías pertenecer al régimen de transición (Ley 73) o tener derecho a elegir régimen. Este formulario no realizará el cálculo Ley 97. Se requiere un diagnóstico específico de Ley 73 / transición.")
     elif fecha_primera_cotizacion is not None:
@@ -238,30 +249,26 @@ if acepta_privacidad:
     # ==========================================
     # PASO 1: DATOS PERSONALES
     # ==========================================
-    st.markdown("### 👤 Paso 1: Tus Datos")
+    st.markdown("### 2. Tus datos")
     col1, col2 = st.columns(2)
 
     with col1:
-        sexo = st.radio("Sexo", ["Hombre", "Mujer"], horizontal=True, help="Se usa para seleccionar el factor actuarial de referencia que contiene el modelo actual.")
+        nombre = st.text_input("Nombre completo", placeholder="Ej. Beatriz Díaz", help="Se utiliza para identificar el reporte PDF. Captura tu nombre como deseas que aparezca en el documento.")
+        telefono = st.text_input("Teléfono celular (10 dígitos)", placeholder="Ej. 3312345678", help="Permite dar seguimiento a la consulta. Escribe únicamente los 10 dígitos, sin espacios ni guiones.")
+        telefono_valido = bool(re.match(r"^\d{10}$", telefono)) if telefono else False
+        if telefono and not telefono_valido:
+            st.warning("⚠️ El teléfono debe contener exactamente 10 números.")
 
     with col2:
-        edad_actual = st.number_input("Edad actual", min_value=18, max_value=64, value=40, step=1, help="Edad en años cumplidos. El modelo estima el horizonte hasta la edad de pensión seleccionada.")
-        edad_pension = st.radio(
-            "¿A qué edad deseas pensionarte?",
-            [60, 65],
-            horizontal=True,
-            help="El Fondo de Pensiones para el Bienestar solo aplica a los 65 años. Si eliges 60, se calculará la pensión por Cesantía sin ese complemento."
-        )
-        if edad_pension == 60:
-            st.warning("⚠️ A los 60 años NO aplica el Complemento del Fondo del Bienestar. Solo se calcula la pensión por Cesantía con tu saldo de AFORE.")
-        else:
-            st.success("✅ A los 65 años aplica el Complemento del Fondo del Bienestar (con tope).")
+        sexo = st.radio("Sexo", ["Hombre", "Mujer"], horizontal=True, help="Se usa para seleccionar el factor actuarial de referencia que contiene el modelo actual.")
+        edad_actual = st.number_input("Edad actual", min_value=18, max_value=64, value=40, step=1, help="Edad en años cumplidos. El modelo estima el horizonte hasta los 65 años.")
+        st.caption("La fecha exacta de primera cotización se captura arriba para validar el régimen. Esta validación no sustituye la constancia oficial del IMSS.")
 
     # ==========================================
     # PASO 2: DATOS FINANCIEROS
     # ==========================================
     st.markdown("---")
-    st.markdown("### 💰 Paso 2: Tus Datos Financieros")
+    st.markdown("### 3. Tu situación financiera")
     col3, col4 = st.columns(2)
 
     with col3:
@@ -278,7 +285,7 @@ if acepta_privacidad:
     # PASO 3: PERFIL LABORAL
     # ==========================================
     st.markdown("---")
-    st.markdown("### 🏥 Paso 3: Tu Perfil Laboral")
+    st.markdown("### 4. Información laboral complementaria")
     es_empleado_imss = st.checkbox("¿Eres trabajador de base del propio IMSS, contratado después del 1 de agosto de 2008?", help="Marca esta opción únicamente si eres personal de base del Instituto Mexicano del Seguro Social y aplica la retención descrita abajo.")
 
     porcentaje_ahorro_imss = 0.11 if es_empleado_imss else 0.0
@@ -287,7 +294,7 @@ if acepta_privacidad:
     if es_empleado_imss:
         st.markdown("""
         <div class="info-box">
-        <strong>📌 Nota:</strong> Como empleado del IMSS, tienes una retención automática del 11% para tu ahorro voluntario (tarjetón) conforme al Contrato Colectivo.
+        <strong>Referencia:</strong> Para personal de base del IMSS contratado después de agosto de 2008, el modelo considera la retención del 11% indicada para este escenario.
         </div>
         """, unsafe_allow_html=True)
         saldo_voluntario_actual = st.number_input("Saldo actual del ahorro por tarjetón / ahorro voluntario (MXN)", min_value=0.0, value=0.0, step=5000.0, format="%.2f", help="Captura el saldo acumulado que corresponda a este ahorro, según el estado de cuenta disponible. Si no lo conoces, solicita confirmación antes de usar el resultado como definitivo.")
@@ -298,12 +305,12 @@ if acepta_privacidad:
     # PASO 4: ESTRATEGIA FISCAL
     # ==========================================
     st.markdown("---")
-    st.markdown("### ⚖️ Paso 4: Tu Estrategia Fiscal")
+    st.markdown("### 5. Preferencia fiscal")
     quiere_deducir = st.radio(
-        "¿Qué enfoque fiscal te interesa explorar?",
-        ["Sí, quiero deducir y buscar devoluciones del SAT cada año",
-         "No, prefiero no deducir hoy y exentar de impuestos mi dinero al final"],
-        help="Es una preferencia inicial para mostrar una estimación ilustrativa. La procedencia del tratamiento fiscal depende del producto, los requisitos legales y tu situación particular; debe validarse antes de tomar decisiones."
+        "¿Qué escenario fiscal quieres revisar?",
+        ["Sí, quiero deducir y estimar una posible devolución anual",
+         "No, prefiero explorar una opción sin deducción actual"],
+        help="Esta selección sirve para comparar escenarios durante la asesoría. El tratamiento fiscal depende del plan y de los requisitos aplicables."
     )
 
     semanas_cotizadas = 0
@@ -316,16 +323,19 @@ if acepta_privacidad:
     # BOTÓN DE CÁLCULO
     # ==========================================
     st.markdown("---")
-    if st.button("🚀 Calcular mi Diagnóstico de Retiro"):
+    st.caption("Revisa los datos y calcula tu estimación. Durante la asesoría podrás revisar cada resultado.")
+    if st.button("Calcular mi diagnóstico", type="primary"):
         if fecha_primera_cotizacion is None:
             st.error("Selecciona la fecha de tu primera cotización registrada ante el IMSS para validar el régimen antes de calcular.")
         elif fecha_primera_cotizacion < date(1997, 7, 1):
             st.error("Cálculo bloqueado: la fecha capturada corresponde a una posible situación de Ley 73 / transición. No se generará un diagnóstico Ley 97 con estos datos.")
+        elif not nombre or not telefono_valido:
+            st.error("Por favor, revisa que tu nombre y teléfono a 10 dígitos estén bien escritos.")
         elif salario_mensual == 0:
             st.error("Por favor, ingresa tu sueldo mensual actual.")
         else:
             with st.spinner("Calculando tu diagnóstico..."):
-                anos_futuros = edad_pension - edad_actual
+                anos_futuros = 65 - edad_actual
                 meses_totales = anos_futuros * 12
                 factor_calibracion = 0.942
 
@@ -341,24 +351,19 @@ if acepta_privacidad:
                     aportacion_mes = salario_mensual * tasa_cotiz * DENSIDAD_COTIZACION * factor_calibracion
                     saldo_afore_acumulado = (saldo_afore_acumulado * (1 + tasa_mensual_neta_afore)) + aportacion_mes
 
-                ae_fija = ANUALIDADES[sexo][edad_pension]
-                pension_base = (saldo_afore_acumulado / ((1 + MARGEN_SEGURIDAD) * ae_fija)) * FACTOR_PENSION_97 / 12
-
-                if edad_pension == 65 and pension_base < TOPE_BIENESTAR:
-                    complemento_solidario = max(0.0, TOPE_BIENESTAR - pension_base)
-                else:
-                    complemento_solidario = 0.0
-
-                pension_obligatoria_total = pension_base + complemento_solidario
+                ae_65_fija = ANUALIDADES[sexo][65]
+                pension_65_base = (saldo_afore_acumulado / ((1 + MARGEN_SEGURIDAD) * ae_65_fija)) * FACTOR_PENSION_97 / 12
+                complemento_solidario = max(0.0, TOPE_BIENESTAR - pension_65_base) if pension_65_base < TOPE_BIENESTAR else 0.0
+                pension_65_obligatoria_total = pension_65_base + complemento_solidario
 
                 saldo_voluntario_acumulado = saldo_voluntario_actual
                 for mes in range(1, meses_totales + 1):
                     aportacion_voluntaria_tarjeton = salario_mensual * porcentaje_ahorro_imss
                     saldo_voluntario_acumulado = (saldo_voluntario_acumulado * (1 + tasa_mensual_neta_afore)) + aportacion_voluntaria_tarjeton
 
-                pension_generada_voluntario = (saldo_voluntario_acumulado / ((1 + MARGEN_SEGURIDAD) * ae_fija)) * FACTOR_PENSION_97 / 12
+                pension_generada_voluntario = (saldo_voluntario_acumulado / ((1 + MARGEN_SEGURIDAD) * ae_65_fija)) * FACTOR_PENSION_97 / 12
 
-                pension_afore_consolidada = pension_obligatoria_total + pension_generada_voluntario
+                pension_afore_consolidada = pension_65_obligatoria_total + pension_generada_voluntario
                 brecha_patrimonial = max(0.0, salario_mensual - pension_afore_consolidada)
                 tasa_reemplazo = (pension_afore_consolidada / salario_mensual) * 100 if salario_mensual > 0 else 0
 
@@ -372,29 +377,29 @@ if acepta_privacidad:
                 # RESULTADOS VISUALES
                 # ==========================================
                 st.markdown("---")
-                st.markdown(f"## 📊 Tu Diagnóstico de Retiro a los {edad_pension} años")
+                st.markdown("## 📊 Tu Diagnóstico de Retiro")
 
                 col_a, col_b, col_c = st.columns([1, 1, 1])
                 with col_a:
                     st.markdown(f"""
                     <div class="metric-card">
-                        <h3>Pensión Estimada</h3>
-                        <div class="value">${pension_obligatoria_total:,.0f}</div>
+                        <h3>Pensión obligatoria estimada</h3>
+                        <div class="value">${pension_65_obligatoria_total:,.0f}</div>
                         <div class="label">MXN mensuales</div>
                     </div>
                     """, unsafe_allow_html=True)
                 with col_b:
                     st.markdown(f"""
                     <div class="metric-card">
-                        <h3>Tasa de Reemplazo</h3>
+                        <h3>Ingreso cubierto por la pensión</h3>
                         <div class="value">{tasa_reemplazo:.1f}%</div>
-                        <div class="label">de tu sueldo actual</div>
+                        <div class="label">AFORE y, si aplica, ahorro IMSS</div>
                     </div>
                     """, unsafe_allow_html=True)
                 with col_c:
                     st.markdown(f"""
                     <div class="metric-card">
-                        <h3>Brecha Mensual</h3>
+                        <h3>Diferencia mensual estimada</h3>
                         <div class="value">${brecha_patrimonial:,.0f}</div>
                         <div class="label">MXN por cubrir</div>
                     </div>
@@ -402,29 +407,24 @@ if acepta_privacidad:
 
                 # Sección 1
                 st.markdown("---")
-                st.markdown("### 📊 1. Diagnóstico del Sistema Obligatorio (Afore)")
+                st.markdown("### 1. Tu pensión del sistema obligatorio")
                 st.write(f"- Fondo estimado acumulado por Ley: **${saldo_afore_acumulado:,.2f} MXN**")
-                st.write(f"- Pensión base a los {edad_pension} años: **${pension_base:,.2f} MXN**")
-                if edad_pension == 65 and complemento_solidario > 0:
-                    st.write(f"- Complemento del Bienestar: **${complemento_solidario:,.2f} MXN**")
-                if edad_pension == 60:
-                    st.write(f"- Complemento del Bienestar: **No aplica a los 60 años**")
-                st.write(f"- **Pensión Mensual Obligatoria Protegida: ${pension_obligatoria_total:,.2f} MXN**")
+                st.write(f"- Pensión base de la Afore: **${pension_65_base:,.2f} MXN**")
+                if complemento_solidario > 0:
+                    st.write(f"- Subsidio del Gobierno (Fondo del Bienestar): **${complemento_solidario:,.2f} MXN**")
+                st.write(f"- **Pensión mensual obligatoria estimada: ${pension_65_obligatoria_total:,.2f} MXN**")
+                st.caption("Este resultado se calcula con la proyección del sistema obligatorio. No depende de la opción fiscal ni de contratar un plan privado.")
 
                 # Sección 2 (solo si es IMSS)
                 if es_empleado_imss:
                     st.markdown("---")
-                    st.markdown("### 🏦 2. Rendimiento de tu Ahorro Voluntario Actual")
-                    st.write(f"- Aportación mensual estimada (11% del sueldo): **${salario_mensual * porcentaje_ahorro_imss:,.2f} MXN**")
-                    st.write(f"- Saldo inicial de ahorro voluntario: **${saldo_voluntario_actual:,.2f} MXN**")
-                    st.write(f"- Años de proyección: **{anos_futuros} años**")
-                    st.write(f"- Rendimiento anual aplicado: **{RENDIMIENTO_ANUAL_AFORE*100:.2f}%**")
-                    st.write(f"- **Fondo total estimado de Ahorro Voluntario a los {edad_pension} años: ${saldo_voluntario_acumulado:,.2f} MXN**")
+                    st.markdown("### Ahorro complementario de nómina IMSS")
+                    st.write(f"- Fondo total estimado de Ahorro Voluntario a los 65 años: **${saldo_voluntario_acumulado:,.2f} MXN**")
                     st.write(f"- **Pensión mensual extra generada por tu Ahorro Voluntario: ${pension_generada_voluntario:,.2f} MXN**")
 
                 # Sección 3
                 st.markdown("---")
-                st.markdown("### 🚨 3. Análisis de la Brecha en tu Estilo de Vida")
+                st.markdown("### 2. La diferencia entre tu ingreso actual y tu pensión")
 
                 if es_empleado_imss:
                     st.write(f"Hoy ganas **${salario_mensual:,.2f} MXN**, pero sumando tu Afore Obligatoria y tu Ahorro Voluntario solo cubres el **{tasa_reemplazo:.1f}%** de tus ingresos.")
@@ -435,14 +435,14 @@ if acepta_privacidad:
                     st.markdown(f"""
                     <div class="warning-box">
                     <strong>Te harán falta cada mes: ${brecha_patrimonial:,.2f} MXN.</strong><br>
-                    Este es el bache que debes cubrir para mantener tu estilo de vida.
+                    Esta es la diferencia mensual estimada entre tu ingreso actual y la pensión proyectada.
                     </div>
                     """, unsafe_allow_html=True)
 
                     # Sección 4
                     st.markdown("---")
-                    st.markdown("### 📈 4. Plan de Ahorro Privado Sugerido")
-                    capital_necesario_comp = (brecha_patrimonial * 12 * ae_fija * (1 + MARGEN_SEGURIDAD)) / FACTOR_PENSION_97
+                    st.markdown("### 3. Una estrategia para complementar tu pensión")
+                    capital_necesario_comp = (brecha_patrimonial * 12 * ae_65_fija * (1 + MARGEN_SEGURIDAD)) / FACTOR_PENSION_97
 
                     if meses_totales > 0:
                         factor_acumulacion = ((1 + tasa_mensual_comp) ** meses_totales - 1) / tasa_mensual_comp
@@ -451,24 +451,25 @@ if acepta_privacidad:
                         aportacion_requerida = 0.0
 
                     aportacion_final_comp = max(MINIMO_APORTACION, aportacion_requerida)
-                    pension_generada_ahorro = (capital_necesario_comp * FACTOR_PENSION_97) / (ae_fija * (1 + MARGEN_SEGURIDAD)) / 12
+                    pension_generada_ahorro = (capital_necesario_comp * FACTOR_PENSION_97) / (ae_65_fija * (1 + MARGEN_SEGURIDAD)) / 12
 
-                    st.write(f"- **Fondo de Reserva Privado a Construir: ${capital_necesario_comp:,.2f} MXN**")
-                    st.metric(label="Ahorro Mensual Sugerido", value=f"${aportacion_final_comp:,.2f} MXN")
+                    st.write(f"- **Fondo privado proyectado: ${capital_necesario_comp:,.2f} MXN**")
+                    st.metric(label="Ahorro mensual sugerido", value=f"${aportacion_final_comp:,.2f} MXN")
+                    st.caption("Esta propuesta busca complementar la pensión estimada y acercarte al ingreso mensual que deseas en el retiro. Es un escenario ilustrativo, no una obligación de contratación.")
 
                     # Sección 5
                     st.markdown("---")
-                    st.markdown("### 🏢 5. Resumen Consolidado de tu Pensión Mensual Futura")
-                    pension_consolidada_final = pension_obligatoria_total + pension_generada_voluntario + pension_generada_ahorro
+                    st.markdown("### Resultado combinado de los escenarios")
+                    pension_consolidada_final = pension_65_obligatoria_total + pension_generada_voluntario + pension_generada_ahorro
 
                     st.markdown(f"""
                     <div class="success-box">
-                    <strong>💰 INGRESO MENSUAL TOTAL ESTIMADO AL RETIRO:</strong><br>
+                    <strong>INGRESO MENSUAL TOTAL ESTIMADO AL RETIRO</strong><br>
                     <span style="font-size: 2rem; font-weight: 700; color: #1e3a5f;">${pension_consolidada_final:,.2f} MXN</span>
                     </div>
                     """, unsafe_allow_html=True)
 
-                    st.write(f"• (+) Pensión por tu Afore Obligatoria de Ley: **${pension_obligatoria_total:,.2f} MXN**")
+                    st.write(f"• (+) Pensión por tu Afore Obligatoria de Ley: **${pension_65_obligatoria_total:,.2f} MXN**")
                     if es_empleado_imss:
                         st.write(f"• (+) Pensión extra por tu Ahorro Voluntario IMSS: **${pension_generada_voluntario:,.2f} MXN**")
                     st.write(f"• (+) Pensión estimada por tu Plan Privado Sugerido: **${pension_generada_ahorro:,.2f} MXN**")
@@ -476,7 +477,7 @@ if acepta_privacidad:
                     # Sección 6
                     if "Sí, quiero deducir" in quiere_deducir:
                         st.markdown("---")
-                        st.markdown("### 💵 6. Estimación de Recuperación de Impuestos")
+                        st.markdown("### 4. Estimación fiscal ilustrativa")
                         tasa_calculada = 0.15 if salario_mensual <= 25000 else (0.20 if salario_mensual <= 40000 else (0.30 if salario_mensual <= 90000 else 0.35))
 
                         ahorro_anual_plan = aportacion_final_comp * 12
@@ -495,16 +496,18 @@ if acepta_privacidad:
 
                         devolucion_estimada = monto_deducible_real * tasa_calculada
                         devolucion_texto_reporte = f"${devolucion_estimada:,.2f} MXN"
-                        st.metric(label="Saldo a favor estimado en tu Declaración Anual", value=devolucion_texto_reporte)
-                        st.write(f"Costo mensual neto real de tu ahorro: **${(aportacion_final_comp - (devolucion_estimada/12)):,.2f} MXN**")
+                        st.metric(label="Posible recuperación fiscal anual", value=devolucion_texto_reporte)
+                        st.write(f"Costo mensual estimado después de la recuperación ilustrativa: **${(aportacion_final_comp - (devolucion_estimada/12)):,.2f} MXN**")
+                        st.markdown('<div class="note-box">Estimación sujeta a tu situación fiscal, al monto deducible y al cumplimiento de los requisitos aplicables. No representa una devolución garantizada.</div>', unsafe_allow_html=True)
                     else:
                         st.markdown("---")
-                        st.markdown("### 🛡️ 6. Beneficio de Exención de Impuestos (Artículo 93)")
-                        st.write("• Al no deducir hoy, tu dinero se entrega **100% libre de impuestos** al retirarlo a los 60 años con 5 años de vigencia.")
+                        st.markdown("### 4. Escenario sin deducción actual")
+                        st.write("Esta alternativa permite revisar un esquema que no busca una deducción fiscal hoy.")
+                        st.markdown('<div class="note-box">El tratamiento fiscal al retiro depende del plan contratado y de cumplir sus requisitos. La exención no aplica automáticamente a cualquier ahorro.</div>', unsafe_allow_html=True)
 
                 else:
-                    st.success("🎉 Según los datos capturados, tu Afore cubre tu sueldo actual.")
-                    pension_consolidada_final = pension_obligatoria_total + pension_generada_voluntario
+                    st.success("Según los datos capturados, la pensión estimada cubre el ingreso mensual indicado.")
+                    pension_consolidada_final = pension_65_obligatoria_total + pension_generada_voluntario
 
                 # ==========================================
                 # GENERACIÓN DEL PDF
@@ -534,8 +537,9 @@ if acepta_privacidad:
                 pdf.set_font("Helvetica", "B", 12)
                 pdf.cell(0, 8, "1. INFORMACION DEL ASEGURADO", ln=True)
                 pdf.set_font("Helvetica", size=11)
+                pdf.cell(0, 6, texto_pdf_seguro(f"Nombre: {nombre}"), ln=True)
+                pdf.cell(0, 6, f"Telefono: {telefono}", ln=True)
                 pdf.cell(0, 6, f"Sexo: {sexo} | Edad actual: {edad_actual} anos", ln=True)
-                pdf.cell(0, 6, f"Edad de pension seleccionada: {edad_pension} anos", ln=True)
                 pdf.cell(0, 6, f"Primera cotizacion IMSS capturada: {fecha_primera_cotizacion.strftime('%d/%m/%Y')}", ln=True)
                 pdf.cell(0, 6, "Regimen evaluado por fecha capturada: Ley 97 (validar con constancia oficial)", ln=True)
                 pdf.cell(0, 6, f"Sueldo Mensual Bruto: {salario_mensual:,.2f} MXN", ln=True)
@@ -545,12 +549,10 @@ if acepta_privacidad:
                 pdf.cell(0, 8, "2. DIAGNOSTICO DEL SISTEMA OBLIGATORIO (AFORE)", ln=True)
                 pdf.set_font("Helvetica", size=11)
                 pdf.cell(0, 6, f"Fondo estimado acumulado: {saldo_afore_acumulado:,.2f} MXN", ln=True)
-                pdf.cell(0, 6, f"Pension base a los {edad_pension} anos: {pension_base:,.2f} MXN", ln=True)
-                if edad_pension == 65 and complemento_solidario > 0:
+                pdf.cell(0, 6, f"Pension base de la Afore: {pension_65_base:,.2f} MXN", ln=True)
+                if complemento_solidario > 0:
                     pdf.cell(0, 6, f"Complemento del Bienestar: {complemento_solidario:,.2f} MXN", ln=True)
-                if edad_pension == 60:
-                    pdf.cell(0, 6, "Complemento del Bienestar: No aplica a los 60 anos", ln=True)
-                pdf.cell(0, 6, f"Pension Mensual Obligatoria: {pension_obligatoria_total:,.2f} MXN", ln=True)
+                pdf.cell(0, 6, f"Pension Mensual Obligatoria: {pension_65_obligatoria_total:,.2f} MXN", ln=True)
                 pdf.ln(5)
 
                 if es_empleado_imss:
@@ -580,7 +582,7 @@ if acepta_privacidad:
                 pdf.set_font("Helvetica", "B", 12)
                 pdf.cell(0, 8, "6. RESUMEN CONSOLIDADO DE PENSION MENSUAL FUTURA", ln=True)
                 pdf.set_font("Helvetica", size=11)
-                pdf.cell(0, 6, f"(+) Afore Obligatoria: {pension_obligatoria_total:,.2f} MXN", ln=True)
+                pdf.cell(0, 6, f"(+) Afore Obligatoria: {pension_65_obligatoria_total:,.2f} MXN", ln=True)
                 if es_empleado_imss:
                     pdf.cell(0, 6, f"(+) Ahorro Voluntario: {pension_generada_voluntario:,.2f} MXN", ln=True)
                 if brecha_patrimonial > 0:
@@ -599,17 +601,17 @@ if acepta_privacidad:
 
                 pdf.ln(10)
                 pdf.set_font("Helvetica", "I", 9)
-                pdf.multi_cell(0, 5, "AVISO: Los resultados son estimaciones hipoteticas con fines ilustrativos. No representan una cantidad garantizada ni una resolucion oficial del IMSS.")
+                pdf.multi_cell(0, 5, "AVISO: Resultados hipoteticos e ilustrativos; no representan una pension garantizada ni una resolucion oficial. La estimacion fiscal depende de la situacion del contribuyente, el plan contratado y los requisitos aplicables.")
 
                 pdf_output = bytes(pdf.output())
                 st.download_button(
                     label="📥 Descargar Diagnóstico Patrimonial en PDF",
                     data=bytes(pdf_output),
-                    file_name=f"Plan_Retiro_{re.sub(r'[^A-Za-z0-9_-]+', '_', str(fecha_primera_cotizacion)).strip('_') or 'Prospecto'}.pdf",
+                    file_name=f"Plan_Retiro_{re.sub(r'[^A-Za-z0-9_-]+', '_', texto_pdf_seguro(nombre)).strip('_') or 'Prospecto'}.pdf",
                     mime="application/pdf"
                 )
 
                 st.markdown("---")
-                st.caption("AVISO: los resultados son estimaciones hipotéticas y no tienen valor oficial. No garantizan el monto de una pensión ni sustituyen la validación de semanas, salario base, régimen y requisitos ante el IMSS/AFORE.")
+                st.caption("Nota: resultados ilustrativos. La pensión debe validarse con la información oficial del IMSS/AFORE. Las estimaciones fiscales dependen del plan y de los requisitos aplicables.")
 else:
-    st.info("Para comenzar, consulta el Aviso de Privacidad y marca la casilla de autorización. No se mostrarán los campos de captura hasta que lo hagas.")
+    st.info("Para comenzar, consulta el aviso de privacidad y marca la casilla de autorización. No se mostrarán los campos de captura hasta que lo hagas.")
