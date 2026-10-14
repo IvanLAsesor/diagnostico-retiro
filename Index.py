@@ -158,7 +158,7 @@ def texto_pdf_seguro(texto):
     return texto.encode("latin-1", errors="replace").decode("latin-1")
 
 # ==========================================
-# ENCABEZADO Y AVISO DE PRIVACIDAD
+# ENCABEZADO
 # ==========================================
 try:
     col_logo, col_titulo = st.columns([1, 4])
@@ -181,23 +181,38 @@ except Exception:
 
 st.info("Este diagnóstico es una herramienta educativa de estimación. No sustituye una resolución del IMSS, una proyección oficial de la AFORE ni una asesoría fiscal individual.")
 
-with st.expander("Consultar aviso de privacidad simplificado"):
+# ==========================================
+# AVISO DE PRIVACIDAD SIMPLIFICADO
+# ==========================================
+with st.expander("📄 Consultar Aviso de Privacidad"):
     st.markdown("""
-    **Responsable del tratamiento:** Iván Lenz, asesor patrimonial independiente.
+    ### Aviso de Privacidad Simplificado
 
-    **Datos que se solicitan:** nombre, teléfono y datos generales laborales y financieros que captures voluntariamente.
+    **Responsable:** Gabril Iván Lenz C, asesor patrimonial independiente.
+    **Contacto:** ivanlenz@proton.me
 
-    **Finalidad:** elaborar un diagnóstico estimado de retiro y, cuando corresponda, preparar un reporte PDF para entregártelo y dar seguimiento a la consulta que solicitaste.
+    **Datos que se tratarán:**
+    Esta herramienta **no solicita tu nombre, teléfono ni datos de identificación personal**. Únicamente captura:
+    - Edad y sexo.
+    - Sueldo mensual.
+    - Saldo de AFORE y ahorro voluntario.
+    - Semanas cotizadas (opcional, modo asesor).
+    - Preferencia fiscal.
 
-    **Uso y resguardo:** los datos deben tratarse únicamente para estas finalidades y no deben compartirse con terceros ajenos al servicio sin una base legal aplicable o tu autorización. No introduzcas contraseñas, números completos de identificación ni información que no sea necesaria.
+    **Finalidad:**
+    Estos datos se utilizan **exclusivamente** para elaborar un diagnóstico estimado de tu retiro y generar un reporte en PDF. No se usarán para contactarte, ni para fines publicitarios, ni se compartirán con terceros.
 
-    **Derechos y contacto:** para solicitar acceso, rectificación, cancelación u oponerte al tratamiento, contacta al asesor que te compartió este formulario por el mismo medio.
+    **Consentimiento:**
+    Al marcar la casilla de aceptación, otorgas tu **consentimiento expreso** para el tratamiento de tus datos financieros con la única finalidad de realizar este cálculo.
 
-    **Importante:** este texto es un aviso simplificado provisional; antes de publicar o distribuir ampliamente la aplicación, debe completarse con los datos de contacto, medios de ejercicio de derechos y demás elementos legales aplicables.
+    **Derechos ARCO:**
+    Puedes solicitar acceso, rectificación, cancelación u oposición al tratamiento de tus datos enviando un correo a ivanlenz@proton.me.
+
+    **Importante:** Este es un aviso simplificado. El aviso integral está disponible a solicitud.
     """)
 
 acepta_privacidad = st.checkbox(
-    "He leído el aviso de privacidad y autorizo el uso de los datos que capture para elaborar mi diagnóstico.",
+    "He leído el Aviso de Privacidad y autorizo el uso de mis datos financieros para elaborar mi diagnóstico.",
     value=False,
     help="El formulario no mostrará los campos de captura hasta que marques esta casilla."
 )
@@ -227,14 +242,9 @@ if acepta_privacidad:
     col1, col2 = st.columns(2)
 
     with col1:
-        nombre = st.text_input("Nombre completo", placeholder="Ej. Beatriz Díaz", help="Se utiliza para identificar el reporte PDF. Captura tu nombre como deseas que aparezca en el documento.")
-        telefono = st.text_input("Teléfono celular (10 dígitos)", placeholder="Ej. 3312345678", help="Permite dar seguimiento a la consulta. Escribe únicamente los 10 dígitos, sin espacios ni guiones.")
-        telefono_valido = bool(re.match(r"^\d{10}$", telefono)) if telefono else False
-        if telefono and not telefono_valido:
-            st.warning("⚠️ El teléfono debe contener exactamente 10 números.")
+        sexo = st.radio("Sexo", ["Hombre", "Mujer"], horizontal=True, help="Se usa para seleccionar el factor actuarial de referencia que contiene el modelo actual.")
 
     with col2:
-        sexo = st.radio("Sexo", ["Hombre", "Mujer"], horizontal=True, help="Se usa para seleccionar el factor actuarial de referencia que contiene el modelo actual.")
         edad_actual = st.number_input("Edad actual", min_value=18, max_value=64, value=40, step=1, help="Edad en años cumplidos. El modelo estima el horizonte hasta la edad de pensión seleccionada.")
         edad_pension = st.radio(
             "¿A qué edad deseas pensionarte?",
@@ -311,8 +321,6 @@ if acepta_privacidad:
             st.error("Selecciona la fecha de tu primera cotización registrada ante el IMSS para validar el régimen antes de calcular.")
         elif fecha_primera_cotizacion < date(1997, 7, 1):
             st.error("Cálculo bloqueado: la fecha capturada corresponde a una posible situación de Ley 73 / transición. No se generará un diagnóstico Ley 97 con estos datos.")
-        elif not nombre or not telefono_valido:
-            st.error("Por favor, revisa que tu nombre y teléfono a 10 dígitos estén bien escritos.")
         elif salario_mensual == 0:
             st.error("Por favor, ingresa tu sueldo mensual actual.")
         else:
@@ -526,8 +534,6 @@ if acepta_privacidad:
                 pdf.set_font("Helvetica", "B", 12)
                 pdf.cell(0, 8, "1. INFORMACION DEL ASEGURADO", ln=True)
                 pdf.set_font("Helvetica", size=11)
-                pdf.cell(0, 6, texto_pdf_seguro(f"Nombre: {nombre}"), ln=True)
-                pdf.cell(0, 6, f"Telefono: {telefono}", ln=True)
                 pdf.cell(0, 6, f"Sexo: {sexo} | Edad actual: {edad_actual} anos", ln=True)
                 pdf.cell(0, 6, f"Edad de pension seleccionada: {edad_pension} anos", ln=True)
                 pdf.cell(0, 6, f"Primera cotizacion IMSS capturada: {fecha_primera_cotizacion.strftime('%d/%m/%Y')}", ln=True)
@@ -599,11 +605,11 @@ if acepta_privacidad:
                 st.download_button(
                     label="📥 Descargar Diagnóstico Patrimonial en PDF",
                     data=bytes(pdf_output),
-                    file_name=f"Plan_Retiro_{re.sub(r'[^A-Za-z0-9_-]+', '_', texto_pdf_seguro(nombre)).strip('_') or 'Prospecto'}.pdf",
+                    file_name=f"Plan_Retiro_{re.sub(r'[^A-Za-z0-9_-]+', '_', str(fecha_primera_cotizacion)).strip('_') or 'Prospecto'}.pdf",
                     mime="application/pdf"
                 )
 
                 st.markdown("---")
                 st.caption("AVISO: los resultados son estimaciones hipotéticas y no tienen valor oficial. No garantizan el monto de una pensión ni sustituyen la validación de semanas, salario base, régimen y requisitos ante el IMSS/AFORE.")
 else:
-    st.info("Para comenzar, consulta el aviso de privacidad y marca la casilla de autorización. No se mostrarán los campos de captura hasta que lo hagas.")
+    st.info("Para comenzar, consulta el Aviso de Privacidad y marca la casilla de autorización. No se mostrarán los campos de captura hasta que lo hagas.")
